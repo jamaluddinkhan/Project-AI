@@ -1,0 +1,118 @@
+/* Container */
+.video-form-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: transform 0.3s ease-in-out;
+}
+
+.video-form-container:hover {
+  transform: translateY(-4px);
+}
+
+/* Title */
+.video-form-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #2d3748;
+}
+
+/* Form */
+.video-form .form-group {
+  margin-bottom: 20px;
+}
+
+.video-form label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Textarea */
+.video-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid #cbd5e0;
+  outline: none;
+  resize: none;
+  background: #f9fafb;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.video-form textarea:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+
+/* Character counter */
+.character-counter {
+  font-size: 0.85rem;
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  color: #718096;
+}
+
+.character-counter.warning {
+  color: #d69e2e;
+  font-weight: 600;
+}
+
+.character-counter.error {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+/* Submit button */
+.auth-btn {
+  width: 100%;
+  padding: 14px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #3182ce, #2b6cb0);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.auth-btn:hover {
+  background: linear-gradient(135deg, #2b6cb0, #2c5282);
+  transform: translateY(-2px);
+}
+
+.auth-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* Spinner animation */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ffffff;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

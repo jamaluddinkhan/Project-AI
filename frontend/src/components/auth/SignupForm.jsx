@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext'
 
-const LoginForm = ({ switchToSignup }) => {
+const SignUpForm = ({ switchToLogin }) => {
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: type === 'checkbox' ? checked : value
     });
     
     // Clear error when user starts typing
-    if (errors[e.target.name]) {
+    if (errors[name]) {
       setErrors({
         ...errors,
-        [e.target.name]: ''
+        [name]: ''
       });
     }
     
@@ -36,6 +41,14 @@ const LoginForm = ({ switchToSignup }) => {
   const validateForm = () => {
     const newErrors = {};
     
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+    
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+    
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -44,6 +57,16 @@ const LoginForm = ({ switchToSignup }) => {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
     
     setErrors(newErrors);
@@ -59,10 +82,10 @@ const LoginForm = ({ switchToSignup }) => {
     setErrors({});
     
     try {
-      const result = await login(formData);
+      const result = await signup(formData);
       
       if (!result.success) {
-        setErrors({ general: result.error || 'Login failed. Please try again.' });
+        setErrors({ general: result.error || 'Signup failed. Please try again.' });
       }
     } catch (error) {
       setErrors({ general: 'An unexpected error occurred. Please try again.' });
@@ -82,12 +105,12 @@ const LoginForm = ({ switchToSignup }) => {
             </svg>
             <span className="text-2xl font-bold">Project - AI</span>
           </div>
-          <h2 className="text-4xl font-extrabold mb-3">Welcome Back</h2>
-          <p className="text-gray-300">Sign in to your account to continue your journey with us.</p>
+          <h2 className="text-4xl font-extrabold mb-3">Join Us Today</h2>
+          <p className="text-gray-300">Create an account to unlock all the features and start your journey with us.</p>
         </div>
 
         <div className="w-full md:w-1/2 p-8 sm:p-12">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Sign In</h3>
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Create Account</h3>
           
           {errors.general && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
@@ -96,6 +119,38 @@ const LoginForm = ({ switchToSignup }) => {
           )}
           
           <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="firstName" className="block text-gray-700 font-semibold mb-2">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  placeholder='First Name'
+                  onChange={handleChange}
+                  required
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-100 border ${errors.firstName ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-gray-800 transition`}
+                />
+                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="lastName" className="block text-gray-700 font-semibold mb-2">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  placeholder='Last Name'
+                  onChange={handleChange}
+                  required
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-100 border ${errors.lastName ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-gray-800 transition`}
+                />
+                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
+              </div>
+            </div>
+
             <div className="mb-4">
               <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">Email Address</label>
               <input
@@ -104,7 +159,7 @@ const LoginForm = ({ switchToSignup }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@example.com"
+                placeholder="you@gmail.com"
                 required
                 className={`w-full px-4 py-3 rounded-lg bg-gray-100 border ${errors.email ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-gray-800 transition`}
               />
@@ -126,12 +181,33 @@ const LoginForm = ({ switchToSignup }) => {
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
 
-            <div className="flex items-center justify-between mb-6 text-sm">
-              <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-gray-800 focus:ring-gray-700" />
-                Remember me
+            <div className="mb-4">
+              <label htmlFor="confirmPassword" className="block text-gray-700 font-semibold mb-2">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                className={`w-full px-4 py-3 rounded-lg bg-gray-100 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-gray-800 transition`}
+              />
+              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+            </div>
+
+            <div className="mb-6">
+              <label className="flex items-start gap-2 text-gray-600 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onChange={handleChange}
+                  className="h-4 w-4 rounded border-gray-300 text-gray-800 focus:ring-gray-700 mt-1" 
+                />
+                <span>I agree to the <a href="#terms" className="font-semibold text-gray-800 hover:text-black">Terms and Conditions</a> and <a href="#privacy" className="font-semibold text-gray-800 hover:text-black">Privacy Policy</a></span>
               </label>
-              <a href="#forgot" className="font-semibold text-gray-800 hover:text-black">Forgot password?</a>
+              {errors.agreeToTerms && <p className="text-red-500 text-xs mt-1 ml-6">{errors.agreeToTerms}</p>}
             </div>
 
             <button
@@ -145,10 +221,10 @@ const LoginForm = ({ switchToSignup }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  Creating account...
                 </>
               ) : (
-                'Sign in'
+                'Create Account'
               )}
             </button>
           </form>
@@ -175,7 +251,7 @@ const LoginForm = ({ switchToSignup }) => {
           </div>
 
           <div className="mt-6 text-center text-sm">
-            <p className="text-gray-600">Don't have an account? <button onClick={switchToSignup} className="font-semibold text-gray-800 hover:text-black">Sign up</button></p>
+            <p className="text-gray-600">Already have an account? <button onClick={switchToLogin} className="font-semibold text-gray-800 hover:text-black">Sign in</button></p>
           </div>
         </div>
       </div>
@@ -183,4 +259,4 @@ const LoginForm = ({ switchToSignup }) => {
   );
 };
 
-export default LoginForm;
+export default SignUpForm;

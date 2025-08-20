@@ -20,7 +20,17 @@ export const AuthProvider = ({ children }) => {
     const userData = localStorage.getItem('userData')
     
     if (token && userData) {
-      setUser(JSON.parse(userData))
+      const parsedUser = JSON.parse(userData)
+      // Ensure user object has all required fields
+      const completeUser = {
+        ...parsedUser,
+        bio: parsedUser.bio || '',
+        website: parsedUser.website || '',
+        createdAt: parsedUser.createdAt || new Date().toISOString(),
+        updatedAt: parsedUser.updatedAt || new Date().toISOString(),
+        avatarUpdatedAt: parsedUser.avatarUpdatedAt || null
+      }
+      setUser(completeUser)
     }
     
     setLoading(false)
@@ -41,7 +51,12 @@ export const AuthProvider = ({ children }) => {
                   firstName: 'Demo',
                   lastName: 'User',
                   avatar: '/assets/images/avatars/default.jpg',
-                  credits: 10
+                  credits: 10,
+                  bio: 'AI video enthusiast and creative explorer',
+                  website: 'https://demo.example.com',
+                  createdAt: new Date('2023-01-15').toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  avatarUpdatedAt: null
                 },
                 token: 'mock-jwt-token'
               }
@@ -74,7 +89,12 @@ export const AuthProvider = ({ children }) => {
               firstName: formData.firstName,
               lastName: formData.lastName,
               avatar: '/assets/images/avatars/default.jpg',
-              credits: 5 // New users get 5 free credits
+              credits: 5, // New users get 5 free credits
+              bio: '',
+              website: '',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              avatarUpdatedAt: null
             },
             token: 'mock-jwt-token'
           }
@@ -98,9 +118,44 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updates) => {
-    const updatedUser = { ...user, ...updates };
+    const updatedUser = { 
+      ...user, 
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
     setUser(updatedUser);
     localStorage.setItem('userData', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
+  const addCredits = (amount) => {
+    if (!user) return null;
+    
+    const updatedUser = {
+      ...user,
+      credits: user.credits + amount,
+      updatedAt: new Date().toISOString()
+    };
+    setUser(updatedUser);
+    localStorage.setItem('userData', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
+  const deductCredits = (amount) => {
+    if (!user || user.credits < amount) return null;
+    
+    const updatedUser = {
+      ...user,
+      credits: user.credits - amount,
+      updatedAt: new Date().toISOString()
+    };
+    setUser(updatedUser);
+    localStorage.setItem('userData', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
+  const getRemainingCredits = () => {
+    return user ? user.credits : 0;
   };
 
   const value = {
@@ -109,6 +164,9 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     updateUser,
+    addCredits,
+    deductCredits,
+    getRemainingCredits,
     loading
   };
 

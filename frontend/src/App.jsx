@@ -6,7 +6,9 @@ import Dashboard from './pages/Dashboard'
 import History from './pages/History'
 import Pricing from './pages/Pricing'
 import Home from './pages/Home'
+import Profile from './pages/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { VideoProvider } from './contexts/VideoContext' // Add this import
 import LoadingSpinner from './components/common/LoadingSpinner'
 
 // Protected Route Component
@@ -21,43 +23,22 @@ const ProtectedRoute = ({ children }) => {
     )
   }
   
-  return user ? children : <Navigate to="/" replace />
+  return user ? children : <Navigate to="/login" replace />
 }
 
-// Auth Forms Container Component
-const AuthFormsContainer = () => {
-  const [isLogin, setIsLogin] = useState(() => {
-    const savedState = localStorage.getItem('authFormState')
-    return savedState ? JSON.parse(savedState) : true
-  })
-
-  useEffect(() => {
-    localStorage.setItem('authFormState', JSON.stringify(isLogin))
-  }, [isLogin])
-
-  const handleLogin = (formData) => {
-    console.log('Login data:', formData)
+// Public Route Component (redirect to dashboard if already logged in)
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    )
   }
-
-  const handleSignup = (formData) => {
-    console.log('Signup data:', formData)
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-8">
-      {isLogin ? (
-        <LoginForm 
-          onLogin={handleLogin} 
-          switchToSignup={() => setIsLogin(false)} 
-        />
-      ) : (
-        <SignUpForm 
-          onSignup={handleSignup} 
-          switchToLogin={() => setIsLogin(true)} 
-        />
-      )}
-    </div>
-  )
+  
+  return !user ? children : <Navigate to="/dashboard" replace />
 }
 
 // Main App Component
@@ -75,10 +56,32 @@ function AppContent() {
   return (
     <Router>
       <Routes>
+        {/* Home page - accessible to all */}
+        <Route path="/" element={<Home />} />
+        
+        {/* Auth pages - only accessible when not logged in */}
         <Route 
-          path="/" 
-          element={user ? <Navigate to="/dashboard" replace /> : <AuthFormsContainer />} 
+          path="/login" 
+          element={
+            <PublicRoute>
+              <div className="min-h-screen bg-gray-100 flex items-center justify-center py-8">
+                <LoginForm />
+              </div>
+            </PublicRoute>
+          } 
         />
+        <Route 
+          path="/signup" 
+          element={
+            <PublicRoute>
+              <div className="min-h-screen bg极狐-100 flex items-center justify-center py-8">
+                <SignUpForm />
+              </div>
+            </PublicRoute>
+          } 
+        />
+        
+        {/* Protected pages - only accessible when logged in */}
         <Route 
           path="/dashboard" 
           element={
@@ -103,7 +106,16 @@ function AppContent() {
             </ProtectedRoute>
           } 
         />
-        <Route path="/home" element={<Home />} />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
@@ -114,7 +126,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <VideoProvider>
+        <AppContent />
+      </VideoProvider>
     </AuthProvider>
   )
 }

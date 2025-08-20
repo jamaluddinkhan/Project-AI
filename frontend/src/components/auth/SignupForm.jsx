@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
-const SignUpForm = ({ switchToLogin }) => {
+const SignUpForm = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -14,6 +15,7 @@ const SignUpForm = ({ switchToLogin }) => {
   const [errors, setErrors] = useState({});
   
   const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -84,7 +86,9 @@ const SignUpForm = ({ switchToLogin }) => {
     try {
       const result = await signup(formData);
       
-      if (!result.success) {
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
         setErrors({ general: result.error || 'Signup failed. Please try again.' });
       }
     } catch (error) {
@@ -251,7 +255,7 @@ const SignUpForm = ({ switchToLogin }) => {
           </div>
 
           <div className="mt-6 text-center text-sm">
-            <p className="text-gray-600">Already have an account? <button onClick={switchToLogin} className="font-semibold text-gray-800 hover:text-black">Sign in</button></p>
+            <p className="text-gray-600">Already have an account? <Link to="/login" className="font-semibold text-gray-800 hover:text-black">Sign in</Link></p>
           </div>
         </div>
       </div>

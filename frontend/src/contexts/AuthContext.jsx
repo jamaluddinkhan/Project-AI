@@ -1,64 +1,66 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getConsistentAvatar } from '../utils/avatarUtils';
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
-}
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [usersDB, setUsersDB] = useState([]);
 
   useEffect(() => {
     // Check if user is logged in on app load
-    const token = localStorage.getItem('authToken')
-    const userData = localStorage.getItem('userData')
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    const storedUsers = localStorage.getItem('usersDB');
     
     if (token && userData) {
-      const parsedUser = JSON.parse(userData)
-      // Ensure user object has all required fields
-      const completeUser = {
-        ...parsedUser,
-        bio: parsedUser.bio || '',
-        website: parsedUser.website || '',
-        createdAt: parsedUser.createdAt || new Date().toISOString(),
-        updatedAt: parsedUser.updatedAt || new Date().toISOString(),
-        avatarUpdatedAt: parsedUser.avatarUpdatedAt || null
-      }
-      setUser(completeUser)
+      const userDataObj = JSON.parse(userData);
+      setUser(userDataObj);
     }
     
-    setLoading(false)
-  }, [])
+    if (storedUsers) {
+      setUsersDB(JSON.parse(storedUsers));
+    }
+    
+    setLoading(false);
+  }, []);
 
   const login = async (formData) => {
     try {
-      // Simulate API call with validation
+      // Simulate API call with validation against stored users
       const response = await new Promise((resolve, reject) => 
         setTimeout(() => {
-          // Mock validation - in real app, this would be an API call
-          if (formData.email === 'demo@example.com' && formData.password === 'password') {
+          // Check against all registered users
+          const foundUser = usersDB.find(
+            u => u.email === formData.email && u.password === formData.password
+          );
+          
+          if (foundUser) {
             resolve({
               data: {
                 user: {
-                  id: 1,
-                  email: formData.email,
-                  firstName: 'Demo',
-                  lastName: 'User',
-                  avatar: '/assets/images/avatars/default.jpg',
-                  credits: 10,
-                  bio: 'AI video enthusiast and creative explorer',
-                  website: 'https://demo.example.com',
-                  createdAt: new Date('2023-01-15').toISOString(),
+                  id: foundUser.id,
+                  email: foundUser.email,
+                  firstName: foundUser.firstName,
+                  lastName: foundUser.lastName,
+                  avatar: foundUser.avatar || getConsistentAvatar(foundUser),
+                  credits: foundUser.credits || 5,
+                  bio: foundUser.bio || '',
+                  website: foundUser.website || '',
+                  createdAt: foundUser.createdAt,
                   updatedAt: new Date().toISOString(),
-                  avatarUpdatedAt: null
+                  hasCustomAvatar: foundUser.hasCustomAvatar || false
                 },
-                token: 'mock-jwt-token'
+                token: 'mock-jwt-token-' + Date.now()
               }
             });
           } else {
@@ -80,25 +82,46 @@ export const AuthProvider = ({ children }) => {
   const signup = async (formData) => {
     try {
       // Simulate API call
-      const response = await new Promise(resolve => 
-        setTimeout(() => resolve({
-          data: {
-            user: {
-              id: Date.now(),
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              avatar: '/assets/images/avatars/default.jpg',
-              credits: 5, // New users get 5 free credits
-              bio: '',
-              website: '',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              avatarUpdatedAt: null
-            },
-            token: 'mock-jwt-token'
+      const response = await new Promise((resolve, reject) => 
+        setTimeout(() => {
+          // Check if email already exists
+          const existingUser = usersDB.find(u => u.email === formData.email);
+          
+          if (existingUser) {
+            reject(new Error('Email already registered'));
+            return;
           }
-        }), 1500)
+          
+          const newUserId = Date.now();
+          
+          // Create new user with consistent avatar based on ID
+          const newUser = {
+            id: newUserId,
+            email: formData.email,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            avatar: getConsistentAvatar({ id: newUserId }),
+            credits: 5,
+            bio: '',
+            website: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            hasCustomAvatar: false
+          };
+          
+          // Add new user to database
+          const updatedUsersDB = [...usersDB, newUser];
+          setUsersDB(updatedUsersDB);
+          localStorage.setItem('usersDB', JSON.stringify(updatedUsersDB));
+          
+          resolve({
+            data: {
+              user: newUser,
+              token: 'mock-jwt-token-' + newUserId
+            }
+          });
+        }, 1500)
       );
 
       setUser(response.data.user);
@@ -123,39 +146,18 @@ export const AuthProvider = ({ children }) => {
       ...updates,
       updatedAt: new Date().toISOString()
     };
-    setUser(updatedUser);
-    localStorage.setItem('userData', JSON.stringify(updatedUser));
-    return updatedUser;
-  };
-
-  const addCredits = (amount) => {
-    if (!user) return null;
     
-    const updatedUser = {
-      ...user,
-      credits: user.credits + amount,
-      updatedAt: new Date().toISOString()
-    };
-    setUser(updatedUser);
-    localStorage.setItem('userData', JSON.stringify(updatedUser));
-    return updatedUser;
-  };
-
-  const deductCredits = (amount) => {
-    if (!user || user.credits < amount) return null;
+    // Update in database
+    const updatedUsersDB = usersDB.map(u => 
+      u.id === user.id ? { ...u, ...updates } : u
+    );
+    setUsersDB(updatedUsersDB);
+    localStorage.setItem('usersDB', JSON.stringify(updatedUsersDB));
     
-    const updatedUser = {
-      ...user,
-      credits: user.credits - amount,
-      updatedAt: new Date().toISOString()
-    };
     setUser(updatedUser);
     localStorage.setItem('userData', JSON.stringify(updatedUser));
+    
     return updatedUser;
-  };
-
-  const getRemainingCredits = () => {
-    return user ? user.credits : 0;
   };
 
   const value = {
@@ -164,9 +166,6 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     updateUser,
-    addCredits,
-    deductCredits,
-    getRemainingCredits,
     loading
   };
 

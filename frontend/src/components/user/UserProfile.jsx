@@ -223,10 +223,10 @@ const UserProfile = () => {
                     <span className="text-gray-600">Last updated:</span>
                     <p className="font-medium">{formatDate(user?.updatedAt)}</p>
                   </div>
-                  <div>
+                  {/* <div>
                     <span className="text-gray-600">Credits remaining:</span>
                     <p className="font-medium text-blue-600">{user?.credits || 0}</p>
-                  </div>
+                  </div> */}
                   <div>
                     <span className="text-gray-600">Status:</span>
                     <p className="font-medium text-green-600">Active</p>

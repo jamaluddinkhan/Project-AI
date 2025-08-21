@@ -5,6 +5,7 @@ import VideoPreview from '../components/video/VideoPreview';
 import VideoControls from '../components/video/VideoControls';
 import HistoryItem from '../components/video/HistoryItem';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [generatedVideo, setGeneratedVideo] = useState(null);
@@ -15,7 +16,7 @@ const Dashboard = () => {
   const sampleVideos = [
     {
       id: 1,
-      prompt: "A serene beach at sunset with gentle waves",
+      prompt: "Design Indian flag",
       thumbnail: "/assets/images/previews/beach.jpg",
       createdAt: "2023-10-15T14:30:00Z",
       status: "completed",
@@ -23,7 +24,7 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      prompt: "A bustling city street in Tokyo at night",
+      prompt: "ek sher hathi ki fight in 3D",
       thumbnail: "/assets/images/previews/tokyo.jpg",
       createdAt: "2023-10-14T11:20:00Z",
       status: "completed",
@@ -137,7 +138,12 @@ const Dashboard = () => {
               
               {(promptHistory.length > 0 || sampleVideos.length > 0) && (
                 <button className="w-full mt-6 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
+                  <Link
+                  // to="history"
+                  >
+                  
                   View All History
+                  </Link>
                 </button>
               )}
             </div>

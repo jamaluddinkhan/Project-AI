@@ -9,7 +9,7 @@ const LoginForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ const LoginForm = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    
+
     // Clear error when user starts typing
     if (errors[e.target.name]) {
       setErrors({
@@ -26,7 +26,7 @@ const LoginForm = () => {
         [e.target.name]: ''
       });
     }
-    
+
     if (errors.general) {
       setErrors({
         ...errors,
@@ -37,32 +37,32 @@ const LoginForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsLoading(true);
     setErrors({});
-    
+
     try {
       const result = await login(formData);
-      
+
       if (result.success) {
         navigate('/dashboard');
       } else {
@@ -92,13 +92,13 @@ const LoginForm = () => {
 
         <div className="w-full md:w-1/2 p-8 sm:p-12">
           <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Sign In</h3>
-          
+
           {errors.general && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
               {errors.general}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">Email Address</label>
@@ -163,32 +163,38 @@ const LoginForm = () => {
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
-          <div className="flex gap-4">
-            <button className="w-1/2 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 14h-2v-2h-2v2h-2v-2h-2v2H7v-4.18c1.13-.61 2-1.73 2-3.07 0-1.93-1.57-3.5-3.5-3.5S2 8.82 2 10.75s1.57 3.5 3.5 3.5c.5 0 .97-.1 1.4-.28.03.17.05.35.05.53v3h8v-2z"/>
-              </svg>
-              Google
-            </button>
-            <button className="w-1/2 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition">
-             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-  <path
-    fillRule="evenodd"
-    clipRule="evenodd"
-    d="M12 2C6.477 2 2 6.484 2 12.012c0 4.422 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482
-       0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608
-       1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943
-       0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115
-       2.504.337 1.909-1.293 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683
-       0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852
-       0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48
-       A10.013 10.013 0 0022 12.012C22 6.484 17.523 2 12 2z"
-  />
-</svg>
+        <div className="flex gap-4">
+  {/* Google Button */}
+  <button className="w-1/2 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition">
+    <svg className="w-5 h-5" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M21.35 11.1h-9.17v2.94h5.23c-.23 1.26-.94 2.32-2.02 3.03v2.5h3.26c1.9-1.75 2.99-4.34 2.99-7.47 0-.7-.07-1.38-.2-2z"/>
+      <path fill="#34A853" d="M12.18 22c2.7 0 4.96-.9 6.62-2.43l-3.26-2.5c-.9.6-2.04.97-3.36.97-2.58 0-4.77-1.74-5.56-4.07H3.27v2.56A9.82 9.82 0 0 0 12.18 22z"/>
+      <path fill="#FBBC05" d="M6.62 13.97a5.86 5.86 0 0 1 0-3.94V7.47H3.27a9.82 9.82 0 0 0 0 9.06l3.35-2.56z"/>
+      <path fill="#EA4335" d="M12.18 5.9c1.47 0 2.79.5 3.83 1.48l2.86-2.86C16.95 2.8 14.68 2 12.18 2A9.82 9.82 0 0 0 3.27 7.47l3.35 2.56c.79-2.33 2.98-4.07 5.56-4.07z"/>
+    </svg>
+    Google
+  </button>
 
-              GitHub
-            </button>
-          </div>
+  {/* GitHub Button */}
+  <button className="w-1/2 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition">
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 2C6.477 2 2 6.484 2 12.012c0 4.422 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482
+          0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608
+          1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943
+          0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115
+          2.504.337 1.909-1.293 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683
+          0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852
+          0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48
+          A10.013 10.013 0 0022 12.012C22 6.484 17.523 2 12 2z"
+      />
+    </svg>
+    GitHub
+  </button>
+</div>
+
 
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">Don't have an account? <Link to="/signup" className="font-semibold text-gray-800 hover:text-black">Sign up</Link></p>

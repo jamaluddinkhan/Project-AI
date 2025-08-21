@@ -4,12 +4,12 @@ import LoginForm from './components/auth/LoginForm'
 import SignUpForm from './components/auth/SignUpForm'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'
-import Pricing from './pages/Pricing'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { VideoProvider } from './contexts/VideoContext' // Add this import
+import { VideoProvider } from './contexts/VideoContext'
 import LoadingSpinner from './components/common/LoadingSpinner'
+import Footer from './components/common/Footer'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" replace />
 }
 
-// Public Route Component (redirect to dashboard if already logged in)
+// Public Route Component
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
   
@@ -39,6 +39,18 @@ const PublicRoute = ({ children }) => {
   }
   
   return !user ? children : <Navigate to="/dashboard" replace />
+}
+
+// Layout Component with Footer
+const Layout = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  )
 }
 
 // Main App Component
@@ -56,66 +68,52 @@ function AppContent() {
   return (
     <Router>
       <Routes>
-        {/* Home page - accessible to all */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={
+          <Layout>
+            <Home />
+          </Layout>
+        } />
         
-        {/* Auth pages - only accessible when not logged in */}
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <div className="min-h-screen bg-gray-100 flex items-center justify-center py-8">
-                <LoginForm />
-              </div>
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/signup" 
-          element={
-            <PublicRoute>
-              <div className="min-h-screen bg极狐-100 flex items-center justify-center py-8">
-                <SignUpForm />
-              </div>
-            </PublicRoute>
-          } 
-        />
+        <Route path="/login" element={
+          <PublicRoute>
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center py-8">
+              <LoginForm />
+            </div>
+          </PublicRoute>
+        } />
         
-        {/* Protected pages - only accessible when logged in */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
+        <Route path="/signup" element={
+          <PublicRoute>
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center py-8">
+              <SignUpForm />
+            </div>
+          </PublicRoute>
+        } />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout>
               <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/history" 
-          element={
-            <ProtectedRoute>
-              <History />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/pricing" 
-          element={
-            <ProtectedRoute>
-              <Pricing />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } 
-        />
+            </Layout>
+          </ProtectedRoute>
+        } />
         
-        {/* Catch all route */}
+        <Route path="/history" element={
+          <ProtectedRoute>
+            <Layout>
+              <History />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Layout>
+              <Profile />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

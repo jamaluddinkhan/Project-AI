@@ -1,0 +1,80 @@
+/* Button Component */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--secondary {
+  background-color: #6c757d;
+}
+.btn--secondary:hover {
+  background-color: #545b62;
+}
+
+/* Card Component */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card__header,
+.card__body,
+.card__footer {
+  padding: 1rem;
+}
+
+.card__header {
+  border-bottom: 1px solid #eee;
+}
+
+.card__footer {
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+/* Modal Component */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  animation: slideInUp 0.3s ease-out;
+}
